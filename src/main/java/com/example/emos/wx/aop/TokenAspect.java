@@ -27,7 +27,7 @@ public class TokenAspect {
         String token = threadLocalToken.getToken();
         //如果ThreadLocal中存在Token，说明是更新的Token
         if (token != null) {
-            r.put("token", token); //往响应中放置Token
+            r.put("token", token); //往响应中放置Token1
             threadLocalToken.clear();
         }
         return r;
