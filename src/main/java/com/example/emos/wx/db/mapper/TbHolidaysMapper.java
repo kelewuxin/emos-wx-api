@@ -9,6 +9,8 @@ import org.apache.ibatis.annotations.Mapper;
  */
 public interface TbHolidaysMapper extends BaseMapper<TbHolidays> {
 
+    public Integer searchTodayIsHolidays();
+    
 }
 
 

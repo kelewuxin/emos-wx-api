@@ -9,6 +9,8 @@ import org.apache.ibatis.annotations.Mapper;
  */
 public interface TbWorkdayMapper extends BaseMapper<TbWorkday> {
 
+    public Integer searchTodayIsWorkday();
+
 }
 
 

@@ -18,10 +18,12 @@
             <result property="createTime" column="create_time" jdbcType="TIMESTAMP"/>
     </resultMap>
 
-    <sql id="Base_Column_List">
-        id,user_id,address,
-        country,province,city,
-        district,status,risk,
-        date,create_time
-    </sql>
+    <select id="haveCheckin" parameterType="HashMap" resultType="Integer">
+        SELECT id
+        FROM tb_checkin
+        WHERE user_id = #{userId} AND date = CURRENT_DATE
+        AND create_time BETWEEN #{start} AND #{end}
+        LIMIT 1;
+    </select>
+
 </mapper>
