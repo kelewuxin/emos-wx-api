@@ -9,6 +9,9 @@ import org.apache.ibatis.annotations.Mapper;
  */
 public interface TbFaceModelMapper extends BaseMapper<TbFaceModel> {
 
+    public String searchFaceModel(int userId);
+
+    public int deleteFaceModel(int userId);
 }
 
 
