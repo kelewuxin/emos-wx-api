@@ -23,6 +23,11 @@ spring:
       test-while-idle: true
       test-on-borrow: false
       test-on-return: false
+  mail:
+    default-encoding: UTF-8
+    host: smtp.163.com
+    username: 17773124655@163.com
+    password: UGODJKOMNUMGVOQQ
 
   redis:
     database: 0
@@ -38,7 +43,7 @@ spring:
 
   data:
     mongodb:
-      host: localhost
+      host: 175.178.13.217
       port: 27017
       database: emos
       authentication-database: admin
@@ -70,7 +75,11 @@ emos:
   face:
     createFaceModelUrl: http://175.178.13.217:3000/create_face_model
     checkinUrl: http://175.178.13.217:3000/checkin
-
+  email:
+    system: 598523920@qq.com
+    csadress: 17773124655@163.com
+  image-folder: E:/study/emos/image
+  code: 7F158B852583394B
 wx:
   app-id: wxfdfcef0521a64f52
   app-secret: 149a87770db3129a9bb56f2a8c63f947
