@@ -1,6 +1,11 @@
 package com.example.emos.wx.job;
 
 import cn.hutool.core.date.DateUtil;
+import cn.hutool.core.io.FileUtil;
+import cn.hutool.http.HttpRequest;
+import cn.hutool.http.HttpResponse;
+import cn.hutool.http.HttpUtil;
+import com.example.emos.wx.exception.EmosException;
 import com.example.emos.wx.task.EmailTask;
 import com.example.emos.wx.util.ResultMessage;
 import lombok.extern.slf4j.Slf4j;
@@ -33,44 +38,34 @@ public class  monitorJob {
     @Value("${emos.email.system}")
     private String sysEmail;
 
+    @Value("${emos.info-addrees}")
+    private String addrees;
+
     /**
      * 每隔10分钟刷新一次查询是否下载
      */
     @Scheduled(cron = "0 0/60 * * * ?")
     public void execute() {
-        String ip="61.184.33.38";
-        //获取操作系统类型
-        String osName = "Windows";
-        log.info("操作系统："+osName);
-        String command = "";
-        if(osName.contains("Linux")){
-            command = "ping -c 1 -w 1 "+ip;
-        }else if(osName.contains("Windows")){
-            command = "ping -n 1 -w 1000 "+ip;
-        }else {
-            log.error("未知系统 执行ping命令失败");
+        String[] aryy=addrees.split(",");
+        for(int i=0;i<aryy.length;i++){
+            this.monitorPost(aryy[i]);
         }
-        try {
-            Process p = Runtime.getRuntime().exec(command);
-            BufferedReader reader = new BufferedReader(new InputStreamReader(p.getInputStream(), "GBK"));
-            String line = null;
-            while ((line = reader.readLine()) != null) {
-                System.out.println(line);
-                if (line.contains("来自")||line.contains("1 received")) {
-                    log.info(ip + " 连接成功");
-                }
-                if (line.contains("请求超时")||line.contains("0 received")) {
+    }
 
-                    log.info(ip + DateUtil.format(new Date(), "yyyy年MM月dd日 HH:mm:ss") +" 连接失败");
-                    SimpleMailMessage message=new SimpleMailMessage();
-                    message.setTo(sysEmail);
-                    message.setSubject("IP:" + ip + "网络异常警告！");
-                    message.setText("IP:" + ip + "，" + DateUtil.format(new Date(), "yyyy年MM月dd日 HH:mm:ss") + "网络访问异常请注意！");
-                    emailTask.sendAsync(message);
-                }
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
+    public void monitorPost(String checkinUrl){
+
+        HttpRequest request = HttpUtil.createPost(checkinUrl);
+        request.setConnectionTimeout(20000);
+        HttpResponse response = request.execute();
+        String body = response.body();
+        if (response.getStatus() != 200) {
+            log.error("请求异常服务异常");
+            log.info(checkinUrl + DateUtil.format(new Date(), "yyyy年MM月dd日 HH:mm:ss") +" 连接失败");
+            SimpleMailMessage message=new SimpleMailMessage();
+            message.setTo(sysEmail);
+            message.setSubject("IP:" + checkinUrl + "网络异常警告！");
+            message.setText("IP:" + checkinUrl + "，" + DateUtil.format(new Date(), "yyyy年MM月dd日 HH:mm:ss") + "网络访问异常请注意！");
+            emailTask.sendAsync(message);
         }
     }
 

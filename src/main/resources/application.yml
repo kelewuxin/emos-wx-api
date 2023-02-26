@@ -78,7 +78,9 @@ emos:
   email:
     system: 598523920@qq.com
     csadress: 17773124655@163.com
-  image-folder: E:/study/emos/image
+#  image-folder: E:/study/emos/image
+  info-addrees: http://61.184.33.38:8081/GovEngine_GA_DCHY/aplanmis-rest/multiMeasure/getToken,http://218.200.85.171:9091/GovEngine_JM_DCHY/ehb/dataQuery/getToken
+  image-folder: /root/workflow/image
   code: 7F158B852583394B
 wx:
   app-id: wxfdfcef0521a64f52

@@ -24,6 +24,9 @@ public interface TbUserMapper extends BaseMapper<TbUser> {
 
     public HashMap searchNameAndDept(int userId);
 
+    public String searchUserHiredate(int userId);
+
+    public HashMap searchUserSummary(int userId);
 
 }
 

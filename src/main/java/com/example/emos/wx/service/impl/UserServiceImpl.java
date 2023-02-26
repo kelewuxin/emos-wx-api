@@ -102,5 +102,16 @@ public class UserServiceImpl implements UserService {
         return user;
     }
 
+    @Override
+    public String searchUserHiredate(int userId) {
+        String hiredate = tbUserMapper.searchUserHiredate(userId);
+        return hiredate;
+    }
+
+    @Override
+    public HashMap searchUserSummary(int userId) {
+        HashMap map = tbUserMapper.searchUserSummary(userId);
+        return map;
+    }
 
 }
