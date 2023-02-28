@@ -1,12 +1,15 @@
 package com.example.emos.wx.service.impl;
 
+import cn.hutool.core.util.IdUtil;
 import cn.hutool.http.HttpUtil;
 import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
 import com.example.emos.wx.db.mapper.TbUserMapper;
+import com.example.emos.wx.db.pojo.MessageEntity;
 import com.example.emos.wx.db.pojo.TbUser;
 import com.example.emos.wx.exception.EmosException;
 import com.example.emos.wx.service.UserService;
+import com.example.emos.wx.task.MessageTask;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -31,6 +34,9 @@ public class UserServiceImpl implements UserService {
 
     @Resource
     TbUserMapper tbUserMapper;
+
+    @Resource
+    MessageTask messageTask;
 
     private String getOpenId(String code) {
         String url = "https://api.weixin.qq.com/sns/jscode2session";
@@ -67,6 +73,13 @@ public class UserServiceImpl implements UserService {
                 param.put("root", true);
                 tbUserMapper.insert(param);
                 int id = tbUserMapper.searchIdByOpenId(openId);
+                MessageEntity entity = new MessageEntity();
+                entity.setSenderId(0);
+                entity.setSenderName("系统消息");
+                entity.setUuid(IdUtil.simpleUUID());
+                entity.setMsg("欢迎您注册成为超级管理员，请及时更新你的员工个人信息。");
+                entity.setSendTime(new Date());
+                messageTask.sendAsync(id + "", entity);
                 return id;
             } else {
                 //如果root已经绑定了，就抛出异常
@@ -92,6 +105,7 @@ public class UserServiceImpl implements UserService {
         if (id == null) {
             throw new EmosException("帐户不存在");
         }
+        messageTask.receiveAysnc(id+"");
         //TODO 从消息队列中接收消息，转移到消息表
         return id;
     }

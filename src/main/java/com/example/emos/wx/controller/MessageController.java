@@ -2,14 +2,19 @@ package com.example.emos.wx.controller;
 
 import com.baomidou.mybatisplus.extension.api.R;
 import com.example.emos.wx.config.shiro.JwtUtil;
+import com.example.emos.wx.controller.form.DeleteMessageRefByIdForm;
+import com.example.emos.wx.controller.form.SearchMessageByIdForm;
 import com.example.emos.wx.controller.form.SearchMessageByPageForm;
+import com.example.emos.wx.controller.form.UpdateUnreadMessageForm;
 import com.example.emos.wx.service.MessageService;
+import com.example.emos.wx.task.MessageTask;
 import com.example.emos.wx.util.ResultMessage;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import javax.annotation.Resource;
 import javax.validation.Valid;
 import java.util.HashMap;
 import java.util.List;
@@ -30,6 +35,9 @@ public class MessageController {
     @Autowired
     private MessageService messageService;
 
+    @Resource
+    MessageTask messageTask;
+
     @PostMapping("/searchMessageByPage")
     @ApiOperation("获取分页消息列表")
     public ResultMessage searchMessageByPage(@Valid @RequestBody SearchMessageByPageForm form, @RequestHeader("token") String token) {
@@ -40,5 +48,40 @@ public class MessageController {
         List<HashMap> list = messageService.searchMessageByPage(userId, start, length);
         return ResultMessage.ok().put("result", list);
     }
+
+    @PostMapping("/searchMessageById")
+    @ApiOperation("根据ID查询消息")
+    public ResultMessage searchMessageById(@Valid @RequestBody SearchMessageByIdForm form) {
+        HashMap map = messageService.searchMessageById(form.getId());
+        return ResultMessage.ok().put("result", map);
+    }
+
+    @PostMapping("/updateUnreadMessage")
+    @ApiOperation("未读消息更新成已读消息")
+    public ResultMessage updateUnreadMessage(@Valid @RequestBody UpdateUnreadMessageForm form) {
+        long rows = messageService.updateUnreadMessage(form.getId());
+        return ResultMessage.ok().put("result", rows == 1 ? true : false);
+    }
+
+    @PostMapping("/deleteMessageRefById")
+    @ApiOperation("删除消息")
+    public ResultMessage deleteMessageRefById(@Valid @RequestBody DeleteMessageRefByIdForm form){
+        long rows=messageService.deleteMessageRefById(form.getId());
+        return ResultMessage.ok().put("result", rows == 1 ? true : false);
+    }
+
+    @GetMapping("/refreshMessage")
+    @ApiOperation("刷新用户的消息")
+    public ResultMessage refreshMessage(@RequestHeader("token") String token) {
+        int userId = jwtUtil.getUserId(token);
+        //异步接收消息
+        messageTask.receiveAysnc(userId + "");
+        //查询接收了多少条消息
+        long lastRows=messageService.searchLastCount(userId);
+        //查询未读数据
+        long unreadRows = messageService.searchUnreadCount(userId);
+        return ResultMessage.ok().put("lastRows", lastRows).put("unreadRows", unreadRows);
+    }
+
 }
 
